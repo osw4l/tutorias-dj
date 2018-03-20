@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from smart_selects.db_fields import ChainedForeignKey
+
+from apps.utils.shortcuts import get_object_or_none
 from . import constants
 
 
@@ -81,7 +83,8 @@ class Materia(BaseTutoriaModel, BaseNombre):
 
     def get_tutores(self):
         return MateriaUsuario.objects.filter(
-            materia_id=self
+            materia_id=self,
+            oferta_aprobada=True
         )
 
     def tutores(self):
@@ -92,6 +95,7 @@ class MateriaUsuario(BaseTutoriaModel):
     materia = models.ForeignKey(Materia)
     usuario = models.ForeignKey(Usuario)
     precio = models.PositiveIntegerField(verbose_name='Precio por hora', default=0)
+    oferta_aprobada = models.BooleanField(default=False, editable=False)
 
     class Meta:
         verbose_name = 'Materia Usuario'
@@ -102,7 +106,7 @@ class MateriaUsuario(BaseTutoriaModel):
 class Solicitud(BaseTutoriaModel):
     interesado = models.ForeignKey(Usuario, related_name='+')
     tutor = models.ForeignKey(Usuario, related_name='+')
-    materia = models.ForeignKey(Materia)
+    materia = models.ForeignKey(MateriaUsuario)
     descripcion = models.TextField()
     calificacion = models.PositiveIntegerField(
         validators=[
@@ -112,15 +116,34 @@ class Solicitud(BaseTutoriaModel):
         blank=True,
         null=True
     )
-    comentario = models.TextField()
+    comentario = models.TextField(blank=True, null=True)
     fecha = models.DateField()
-    hora_inicial = models.TimeField()
-    hora_final = models.TimeField()
+    hora = models.TimeField()
+    horas = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5)
+        ],
+        default=0
+    )
     aprobada = models.BooleanField(default=False)
     finalizada = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Solicitud'
         verbose_name_plural = 'Solicitudes'
+
+    def get_valor(self):
+        materia = get_object_or_none(
+            MateriaUsuario,
+            materia=self.materia,
+            usuario=self.tutor
+        )
+        total = 0
+        if materia is not None:
+            print(materia.materia.nombre)
+            print(materia.precio)
+            total = materia.precio * self.horas
+        return total
 
 

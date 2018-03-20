@@ -18,7 +18,8 @@ class MateriaViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def tutores(self, request, pk):
         usuarios_materia = MateriaUsuario.objects.filter(
-            materia_id=pk
+            materia_id=pk,
+            oferta_aprobada=True
         ).exclude(
             usuario_id=self.request.user.id
         )
@@ -30,7 +31,7 @@ class MateriaViewSet(viewsets.ReadOnlyModelViewSet):
             'materia': self.get_object().nombre,
             'descripcion': self.get_object().descripcion,
             'usuarios': serializer.data,
-            'tutores': usuarios_materia.count() - 1
+            'tutores': usuarios_materia.count()
         })
 
 
@@ -61,9 +62,9 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
         })
 
 
-
-
-
+class SolicitudViewSet(viewsets.ModelViewSet):
+    queryset = Solicitud.objects.desarchivados()
+    serializer_class = SolicitudSerializer
 
 
 

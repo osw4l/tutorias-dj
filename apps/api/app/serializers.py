@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from apps.app import models
+from django.contrib.auth.hashers import make_password
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -10,12 +11,23 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = models.Usuario
         fields = ('id',
                   'username',
+                  'first_name',
+                  'last_name',
                   'nombre_completo',
                   'descripcion',
                   'direccion',
                   'telefono',
                   'fecha_creacion',
-                  'materias')
+                  'email',
+                  'materias',
+                  'password')
+
+    def create(self, validate_data):
+        password = make_password(validate_data['password'])
+        instance = super().create(validate_data)
+        instance.password = password
+        instance.save()
+        return instance
 
 
 class MateriaUsuarioSerializer(serializers.ModelSerializer):
@@ -24,6 +36,7 @@ class MateriaUsuarioSerializer(serializers.ModelSerializer):
     user_tutor = serializers.ReadOnlyField(source='usuario.username')
     descripcion_tutor = serializers.ReadOnlyField(source='usuario.descripcion')
     user_id = serializers.ReadOnlyField(source='usuario.id')
+    email_tutor = serializers.ReadOnlyField(source='usuario.email')
 
     class Meta:
         model = models.MateriaUsuario
@@ -33,9 +46,11 @@ class MateriaUsuarioSerializer(serializers.ModelSerializer):
                   'nombre_tutor',
                   'user_id',
                   'user_tutor',
+                  'email_tutor',
                   'descripcion_tutor',
                   'usuario',
-                  'precio')
+                  'precio',
+                  'oferta_aprobada')
 
 
 class MateriaSerializer(serializers.ModelSerializer):
@@ -53,6 +68,7 @@ class SolicitudSerializer(serializers.ModelSerializer):
     nombre_interesado = serializers.ReadOnlyField(source='interesado.get_full_name')
     nombre_tutor = serializers.ReadOnlyField(source='tutor.get_full_name')
     nombre_materia = serializers.ReadOnlyField(source='materia.nombre')
+    valor = serializers.ReadOnlyField(source='get_valor')
 
     class Meta:
         model = models.Solicitud
@@ -67,9 +83,10 @@ class SolicitudSerializer(serializers.ModelSerializer):
                   'calificacion',
                   'comentario',
                   'fecha',
-                  'hora_inicial',
-                  'hora_final',
+                  'hora',
+                  'creacion',
                   'aprobada',
-                  'finalizada'
+                  'finalizada',
+                  'valor'
                   )
 

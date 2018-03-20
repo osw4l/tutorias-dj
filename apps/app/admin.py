@@ -27,16 +27,25 @@ class MateriaAdmin(admin.ModelAdmin):
 class SolicitudAdmin(admin.ModelAdmin):
     list_display = ['id', 'creacion', 'descripcion', 'interesado',
                     'tutor', 'materia',
-                    'calificacion', 'comentario', 'fecha', 'hora_inicial',
-                    'hora_final', 'finalizada',
+                    'calificacion', 'comentario', 'fecha', 'hora',
+                    'hora', 'finalizada',
                     'aprobada', 'archivado']
-
 
 
 @admin.register(models.MateriaUsuario)
 class MateriaUsuarioAdmin(admin.ModelAdmin):
     list_display = ['id', 'creacion', 'materia',
-                    'usuario', 'precio']
+                    'usuario', 'precio', 'oferta_aprobada']
+    actions = ['aprobar', 'no_aprobar']
+
+    def aprobar(self, request, queryset):
+        queryset.update(oferta_aprobada=True)
+
+    def no_aprobar(self, request, queryset):
+        queryset.update(oferta_aprobada=False)
+
+    aprobar.short_description = 'Aprobar la/s oferta/s seleccionada/s'
+    no_aprobar.short_description = 'Desaprobar la/s oferta/s seleccionada/s'
 
 
 

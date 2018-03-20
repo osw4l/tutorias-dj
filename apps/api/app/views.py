@@ -1,10 +1,10 @@
-from rest_framework import generics
+from rest_framework import generics, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from apps.api.app.serializers import MateriaSerializer, MateriaUsuarioSerializer
+from apps.api.app.serializers import MateriaSerializer, MateriaUsuarioSerializer, UsuarioSerializer
 from apps.app.models import Usuario, MateriaUsuario
 from apps.utils.print_colors import _green
 from apps.utils.shortcuts import get_object_or_none
@@ -69,5 +69,10 @@ class MateriasUsuarioList(APIView):
         return Response(response)
 
 
+class UsuarioCreateApiView(mixins.CreateModelMixin,
+                           generics.GenericAPIView):
+    serializer_class = UsuarioSerializer
 
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
