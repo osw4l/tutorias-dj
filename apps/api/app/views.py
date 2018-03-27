@@ -8,18 +8,10 @@ from apps.api.app.serializers import MateriaSerializer, MateriaUsuarioSerializer
 from apps.app.models import Usuario, MateriaUsuario
 from apps.utils.print_colors import _green
 from apps.utils.shortcuts import get_object_or_none
-from rest_framework.authentication import TokenAuthentication
-
-
-class CsrfExemptSessionAuthentication(TokenAuthentication):
-
-    def enforce_csrf(self, request):
-        return  # To not perform the csrf check previously happening
 
 
 class MateriasUsuarioList(APIView):
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def get(self, request, format=None):
         response = {}
@@ -80,7 +72,6 @@ class MateriasUsuarioList(APIView):
 class UsuarioCreateApiView(mixins.CreateModelMixin,
                            generics.GenericAPIView):
     serializer_class = UsuarioSerializer
-    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)

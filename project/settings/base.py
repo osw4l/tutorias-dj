@@ -52,7 +52,8 @@ MIDDLEWARE = [
     # corsheaders
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
+    'apps.utils.middlewares.DisableCSRF',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # old SessionAuthenticationMiddleware
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # debug_toolbar
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+
 ]
 
 DEBUG_TOOLBAR_PANELS = [
@@ -159,4 +161,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '../../public/media')
 SELECT2_USE_BUNDLED_JQUERY = True
 LOGIN_URL = '/login'
 
-
+CSRF_COOKIE_SECURE = True

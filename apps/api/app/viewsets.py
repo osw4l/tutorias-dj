@@ -4,8 +4,6 @@ from rest_framework.views import APIView
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
-
-from apps.api.app.views import CsrfExemptSessionAuthentication
 from apps.utils.shortcuts import get_object_or_none
 from .serializers import MateriaSerializer, MateriaUsuarioSerializer, SolicitudSerializer, UsuarioSerializer
 from apps.app.models import Materia, MateriaUsuario, Solicitud, Usuario
@@ -15,7 +13,6 @@ class MateriaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Materia.objects.desarchivados().order_by('nombre')
     serializer_class = MateriaSerializer
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     @detail_route(methods=['get'])
     def tutores(self, request, pk):
@@ -41,7 +38,6 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     def get_queryset(self):
         return Usuario.objects.filter(is_active=True).exclude(
@@ -68,7 +64,6 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
 class SolicitudViewSet(viewsets.ModelViewSet):
     queryset = Solicitud.objects.desarchivados()
     serializer_class = SolicitudSerializer
-    authentication_classes = (CsrfExemptSessionAuthentication,)
 
 
 
