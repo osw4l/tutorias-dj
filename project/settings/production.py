@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = True
+DEBUG = False
 
 redis_host = os.environ.get('REDIS_HOST', 'localhost')
 
