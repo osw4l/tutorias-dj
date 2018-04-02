@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from apps.api.app.serializers import MateriaSerializer, MateriaUsuarioSerializer, UsuarioSerializer
-from apps.app.models import Usuario, MateriaUsuario
+from apps.api.app.serializers import MateriaSerializer, MateriaUsuarioSerializer, UsuarioSerializer, SolicitudSerializer
+from apps.app.models import Usuario, MateriaUsuario, Solicitud
 from apps.utils.print_colors import _green
 from apps.utils.shortcuts import get_object_or_none
 
@@ -75,4 +75,3 @@ class UsuarioCreateApiView(mixins.CreateModelMixin,
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-

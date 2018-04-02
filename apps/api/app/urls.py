@@ -12,6 +12,5 @@ urlpatterns = [
     url(r'^viewsets/', include(router.urls)),
     url(r'^materias-usuario/', views.MateriasUsuarioList.as_view()),
     url(r'^materia-usuario/(?P<pk>[0-9]+)/', views.MateriasUsuarioList.as_view()),
-    url(r'^crear_usuario/', views.UsuarioCreateApiView.as_view())
-
+    url(r'^crear_usuario/', views.UsuarioCreateApiView.as_view()),
 ]

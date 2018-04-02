@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import make_password
 class UsuarioSerializer(serializers.ModelSerializer):
     nombre_completo = serializers.ReadOnlyField(source='get_full_name')
     fecha_creacion = serializers.ReadOnlyField(source='get_fecha_creacion')
+    calificacion = serializers.ReadOnlyField(source='get_calificacion')
 
     class Meta:
         model = models.Usuario
@@ -20,7 +21,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
                   'fecha_creacion',
                   'email',
                   'materias',
-                  'password')
+                  'password',
+                  'calificacion')
 
     def create(self, validate_data):
         password = make_password(validate_data['password'])
@@ -67,8 +69,11 @@ class MateriaSerializer(serializers.ModelSerializer):
 class SolicitudSerializer(serializers.ModelSerializer):
     nombre_interesado = serializers.ReadOnlyField(source='interesado.get_full_name')
     nombre_tutor = serializers.ReadOnlyField(source='tutor.get_full_name')
-    nombre_materia = serializers.ReadOnlyField(source='materia.nombre')
+    nombre_materia = serializers.ReadOnlyField(source='materia.materia.nombre')
     valor = serializers.ReadOnlyField(source='get_valor')
+    hora_creacion = serializers.ReadOnlyField(source='get_hora_creacion')
+    fecha_creacion = serializers.ReadOnlyField(source='get_fecha_creacion')
+    username_interesado = serializers.ReadOnlyField(source='interesado.username')
 
     class Meta:
         model = models.Solicitud
@@ -84,9 +89,15 @@ class SolicitudSerializer(serializers.ModelSerializer):
                   'comentario',
                   'fecha',
                   'hora',
+                  'horas',
                   'creacion',
                   'aprobada',
                   'finalizada',
-                  'valor'
+                  'valor',
+                  'rechazada',
+                  'cancelada',
+                  'hora_creacion',
+                  'fecha_creacion',
+                  'username_interesado'
                   )
 

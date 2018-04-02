@@ -54,6 +54,11 @@ class BaseTutoriaModel(models.Model):
         locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
         return self.creacion.strftime('%d de %B de %Y')
 
+    def archivar(self):
+        self.archivado = True
+        self.save(update_fields=['archivado'])
+        return True
+
 
 class Usuario(User, BaseTutoriaModel):
     descripcion = models.TextField(verbose_name='Descripción')
@@ -71,6 +76,16 @@ class Usuario(User, BaseTutoriaModel):
 
     def materias(self):
         return self.get_materias().count()
+
+    def get_calificacion(self):
+        calificacion = 0
+        promedio = 0
+        tutorias = Solicitud.objects.filter(tutor=self, calificacion__gt=0)
+        for tutoria in tutorias:
+            calificacion += tutoria.calificacion
+        if calificacion > 0:
+            promedio = calificacion / tutorias.count()
+        return promedio
 
 
 class Materia(BaseTutoriaModel, BaseNombre):
@@ -128,22 +143,79 @@ class Solicitud(BaseTutoriaModel):
     )
     aprobada = models.BooleanField(default=False)
     finalizada = models.BooleanField(default=False)
+    rechazada = models.BooleanField(default=False)
+    cancelada = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Solicitud'
         verbose_name_plural = 'Solicitudes'
 
     def get_valor(self):
-        materia = get_object_or_none(
-            MateriaUsuario,
-            materia=self.materia,
-            usuario=self.tutor
-        )
-        total = 0
-        if materia is not None:
-            print(materia.materia.nombre)
-            print(materia.precio)
-            total = materia.precio * self.horas
-        return total
+        return self.materia.precio * self.horas
 
+    def get_hora_creacion(self):
+        return '{}:{}:{}'.format(
+            self.creacion.time().hour,
+            self.get_minutes(),
+            self.creacion.time().second
+        )
+
+    def get_minutes(self):
+        m = self.creacion.time().minute
+        return '{}'.format(m if m > 9 else '0{}'.format(m))
+
+    def get_fecha_creacion(self):
+        return self.creacion.date()
+
+    def cancelar(self):
+        self.cancelada = True
+        self.aprobada = False
+        self.rechazada = False
+        self.finalizada = False
+        self.save(update_fields=[
+            'cancelada',
+            'aprobada',
+            'rechazada',
+            'finalizada'
+        ])
+        return True
+
+    def aprobar(self):
+        self.cancelada = False
+        self.aprobada = True
+        self.rechazada = False
+        self.finalizada = False
+        self.save(update_fields=[
+            'cancelada',
+            'aprobada',
+            'rechazada',
+            'finalizada'
+        ])
+        return True
+
+    def rechazar(self):
+        self.cancelada = False
+        self.aprobada = False
+        self.rechazada = True
+        self.finalizada = False
+        self.save(update_fields=[
+            'cancelada',
+            'aprobada',
+            'rechazada',
+            'finalizada'
+        ])
+        return True
+
+    def finalizar(self):
+        self.cancelada = False
+        self.aprobada = False
+        self.rechazada = False
+        self.finalizada = True
+        self.save(update_fields=[
+            'cancelada',
+            'aprobada',
+            'rechazada',
+            'finalizada'
+        ])
+        return True
 

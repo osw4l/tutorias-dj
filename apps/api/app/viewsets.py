@@ -60,10 +60,88 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
 
         })
 
+    @detail_route(methods=['get'])
+    def solicitudes(self, request, pk=None):
+        solicitudes = Solicitud.objects.filter(
+            tutor_id=pk,
+            finalizada=True,
+            calificacion__gt=0
+        )
+        serializer = SolicitudSerializer(solicitudes, many=True)
+        return Response({
+            'solicitudes': serializer.data,
+            'cantidad': solicitudes.count()
+        })
+
+
 
 class SolicitudViewSet(viewsets.ModelViewSet):
     queryset = Solicitud.objects.desarchivados()
     serializer_class = SolicitudSerializer
 
+    def get_data(self, **kwargs):
+        kwargs['archivado'] = False
+        solicitudes = Solicitud.objects.filter(**kwargs)
+        serializer = SolicitudSerializer(solicitudes, many=True)
+        return Response({
+            'solicitudes': serializer.data,
+            'cantidad': solicitudes.count()
+        })
 
+    @detail_route(methods=['get'])
+    def enviadas(self, request, pk=None):
+        return self.get_data(**{
+            'interesado': self.request.user.usuario
+        })
 
+    @detail_route(methods=['get'])
+    def recibidas(self, request, pk=None):
+        return self.get_data(**{
+            'tutor': self.request.user.usuario
+        })
+
+    def get_solicitud(self, **kwargs):
+        return get_object_or_none(Solicitud, **kwargs)
+
+    @detail_route(methods=['get'])
+    def cancelar(self, request, pk=None):
+        return Response({
+            'status': self.get_solicitud(**{'pk': pk}).cancelar()
+        })
+
+    @detail_route(methods=['get'])
+    def aceptar(self, request, pk=None):
+        return Response({
+            'status': self.get_solicitud(**{'pk': pk}).aprobar()
+        })
+
+    @detail_route(methods=['get'])
+    def rechazar(self, request, pk=None):
+        return Response({
+            'status': self.get_solicitud(**{'pk': pk}).rechazar()
+        })
+
+    @detail_route(methods=['get'])
+    def finalizar(self, request, pk=None):
+        return Response({
+            'status': self.get_solicitud(**{'pk': pk}).finalizar()
+        })
+
+    @detail_route(methods=['get'])
+    def archivar(self, request, pk=None):
+        return Response({
+            'status': self.get_solicitud(**{'pk': pk}).archivar()
+        })
+
+    @detail_route(methods=['put'])
+    def calificar(self, request, pk=None):
+        comentario = request.data['comentario']
+        calificacion = request.data['calificacion']
+        tutoria = get_object_or_none(Solicitud, id=pk)
+        if tutoria:
+            tutoria.comentario = comentario
+            tutoria.calificacion = int(calificacion)
+            tutoria.save(update_fields=['comentario', 'calificacion'])
+        return Response({
+            'success': True
+        })
