@@ -61,7 +61,7 @@ LOGGING = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'apps.third_party_apps.gis.db.backends.postgis',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'project',
         'USER': 'project',
         'PASSWORD': 'project',
